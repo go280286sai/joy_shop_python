@@ -1,10 +1,15 @@
 from django.shortcuts import render
-
-from toy_shop.models import Brand
+from django.views.generic import TemplateView
+from toy_shop.models import Brand, Category
 
 
 # Create your views here.
-def index(request):
-    brands = Brand.objects.all()
-    print(brands)
-    return render(request, 'index.html', {'brands': brands})
+class IndexView(TemplateView):
+    template_name = 'index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['brands'] = Brand.objects.all()
+        context['categories'] = Category.objects.all()
+        return context
+

@@ -319,3 +319,10 @@ h2 {
 .brand_img:hover{
     width: 110px;
 }
+.menu_nav img{
+    width: 20px;
+    margin-right: -13px;
+}
+.menu_nav a:hover{
+    color: #dd1f59;
+}
