@@ -1,3 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
+from toy_shop.models import Brand
+
+@admin.register(Brand)
+class BrandAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+    class Meta:
+        model = Brand
