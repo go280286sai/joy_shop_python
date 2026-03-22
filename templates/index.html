@@ -42,6 +42,13 @@
     <div class="products" id="products">
         <!-- JS вставит товары -->
     </div>
+
+    <h1>Brands</h1>
+    <div class="brands">
+        {% for brand in brands %}
+            <a href="{{ brand.website }}"><img class="brand_img" src="{{ brand.logo.url }}" alt="{{ brand.name }}" title="{{ brand.description }}"></a>
+    {% endfor %}
+    </div>
 </main>
 
 
