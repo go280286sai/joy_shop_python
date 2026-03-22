@@ -16,9 +16,16 @@
 
     <nav class="nav">
         <div id="categories">
-            <a href="#">Игрушки</a>
-            <a href="#">Конструкторы</a>
-            <a href="#">Настольные игры</a>
+        <table>
+            <tr>
+                {% for category in categories %}
+                    <td class="menu_nav">
+                     <img src="{{ category.image.url }}" alt=""><a href="#">{{ category.name }}</a>
+                    </td>
+            {% endfor %}
+            </tr>
+        </table>
+
         </div>
 
     </nav>
@@ -32,9 +39,9 @@
 
 <!-- MOBILE MENU -->
 <div class="mobile-menu" id="mobileMenu">
-    <a href="#">Игрушки</a>
-    <a href="#">Конструкторы</a>
-    <a href="#">Настольные игры</a>
+    {% for category in categories %}
+        <a href="#">{{ category.name }}</a>
+    {% endfor %}
 </div>
 <main class="container">
     <h1>Популярные игрушки</h1>
@@ -46,8 +53,9 @@
     <h1>Brands</h1>
     <div class="brands">
         {% for brand in brands %}
-            <a href="{{ brand.website }}"><img class="brand_img" src="{{ brand.logo.url }}" alt="{{ brand.name }}" title="{{ brand.description }}"></a>
-    {% endfor %}
+            <a href="{{ brand.website }}"><img class="brand_img" src="{{ brand.logo.url }}" alt="{{ brand.name }}"
+                                               title="{{ brand.description }}"></a>
+        {% endfor %}
     </div>
 </main>
 
