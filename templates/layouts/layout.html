@@ -1,0 +1,48 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>ToyStore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Open+Sans:wght@400&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'asserts/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'asserts/css/styles.css' %}">
+</head>
+<body>
+
+{% include "layouts/header.html" %}
+
+
+<main class="container">
+    {% block content %}
+
+    {% endblock %}
+</main>
+
+
+<!-- КОРЗИНА -->
+<div class="cart-panel" id="cartPanel">
+    <table class="table_cart">
+        <tr>
+            <td class="trash_title">Корзина</td>
+            <td class="trash_icon" title="Close" id="close_trash">❌</td>
+        </tr>
+    </table>
+
+
+    <div id="cartItems"></div>
+    <div class="cart-total" id="cartTotal"></div>
+    <div id="carts_btn"></div>
+</div>
+<!-- MODAL -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <h2>Товар добавлен!</h2>
+        <button onclick="closeModal()" class="btn-primary">Ок</button>
+    </div>
+</div>
+
+{% include "layouts/footer.html" %}
+</body>
+</html>

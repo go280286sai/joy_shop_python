@@ -1,0 +1,39 @@
+<header class="header">
+    <div class="logo" id="top"><a href="{% url 'index' %}">🧸 ToyStore</a></div>
+
+    <nav class="nav">
+        <div id="categories">
+        <table>
+            <tr>
+                {% for category in categories %}
+                    <td class="menu_nav">
+                     <img src="{{ category.image.url }}" alt=""><a href="/category/{{ category.slug }}">{{ category.name }}</a>
+                    </td>
+            {% endfor %}
+            </tr>
+        </table>
+
+        </div>
+
+    </nav>
+
+    <div class="header-actions">
+        {% if user.is_authenticated %}
+            Hello, {{ user.username }}!
+            <a href="/logout/">✖️Logout</a>
+            {% else %}
+            <a href="/register/">➕Register</a>
+            <a href="/login/">✔️Login</a>
+        {% endif %}
+        <label>
+            <input type="text" placeholder="Поиск..." class="search">
+        </label>
+        <button class="cart-btn">🛒 <span id="cart-count">0</span></button>
+        <button class="burger" id="burger">☰</button>
+    </div>
+<div class="mobile-menu" id="mobileMenu">
+    {% for category in categories %}
+        <a href="#">{{ category.name }}</a>
+    {% endfor %}
+</div>
+</header>
