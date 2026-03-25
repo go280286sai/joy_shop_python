@@ -54,6 +54,7 @@ class Product(models.Model):
     is_active = models.BooleanField(default=True)  # Активен
     is_featured = models.BooleanField(default=False)  # Рекомендуемый
     is_new = models.BooleanField(default=False)  # Новинка
+    rating = models.PositiveIntegerField(default=0) # Рейтинг
     created_at = models.DateTimeField(auto_now_add=True)  # Дата создания
     updated_at = models.DateTimeField(auto_now=True)  # Дата обновления
 
@@ -72,3 +73,15 @@ class ProductImage(models.Model):
     alt_text = models.CharField(max_length=200, blank=True)
     order = models.PositiveIntegerField(default=0)
     is_main = models.BooleanField(default=False)  # Основное изображение
+
+class SlideImage(models.Model):
+    name = models.CharField(max_length=200)
+    image = models.ImageField(upload_to='slides/')
+    alt_text = models.CharField(max_length=200, blank=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.name
+    class Meta:
+        verbose_name = 'Slide Image'
+        verbose_name_plural = 'Slide Images'

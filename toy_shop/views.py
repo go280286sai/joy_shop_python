@@ -5,18 +5,25 @@ from faker import Faker
 import random
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
-from toy_shop.models import Brand, Category, Product, ProductImage
+from toy_shop.models import Brand, Category, Product, ProductImage, SlideImage
 from . import forms
 
 
 # Create your views here.
-class IndexView(TemplateView):
+class IndexView(ListView):
     template_name = 'index.html'
+    model = Product
+    context_object_name = 'products'
+
+    def get_queryset(self):
+        # возвращаем только продукты этой категории
+        return Product.objects.order_by('-rating')[:15]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['brands'] = Brand.objects.all()
         context['categories'] = Category.objects.all()
+        context['slides'] = SlideImage.objects.all()
         return context
 
 
@@ -134,10 +141,6 @@ class RegisterView(TemplateView):
         context['categories'] = Category.objects.all()
         context['form'] = self.form
         return context
-
-def is_authenticated(request):
-    status = request.user.is_authenticated
-    return JsonResponse({'is_authenticated': status})
 
 class LoginView(TemplateView):
     template_name = "auth/login.html"

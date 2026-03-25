@@ -1,19 +1,35 @@
 {% extends "layouts/layout.html" %}
-
+{% load static %}
 {% block content %}
-
- <h1>Popular toys</h1>
+    <div class="carousel">
+        <div class="slides">
+            {% for slide in slides %}
+            <div class="slide" style="background-image: url({{ slide.image.url }});"></div>
+            {% endfor %}
+        </div>
+        <div class="controls">
+            <button class="btn" id="prev">‹</button>
+            <button class="btn" id="next">›</button>
+        </div>
+    </div>
+    <h1>Popular toys</h1>
 
     <div class="products" id="products">
-        <!-- JS вставит товары -->
-    </div>
+        {% for product in products %}
 
+            <div class="card">
+                <a href="/product/{{ product.slug }}"><h3>{{ product.name }}</h3></a>
+                <h5>{{ product.description_short }}</h5>
+                <div class="price">{{ product.price }}</div>
+                <button class="btn-primary">Add to cart</button>
+            </div>
+        {% endfor %}
+    </div>
     <h1>Brands</h1>
     <div class="brands">
         {% for brand in brands %}
             <a href="/brand/{{ brand.slug }}"><img class="brand_img" src="{{ brand.logo.url }}" alt="{{ brand.name }}"
-                                               title="{{ brand.description }}"></a>
+                                                   title="{{ brand.description }}"></a>
         {% endfor %}
     </div>
-
 {% endblock %}

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from toy_shop.models import Brand, Category, Product, ProductImage
+from toy_shop.models import Brand, Category, Product, ProductImage, SlideImage
 
 
 @admin.register(Brand)
@@ -37,3 +37,10 @@ class ProductImageAdmin(admin.ModelAdmin):
 
     class Meta:
         model = ProductImage
+
+@admin.register(SlideImage)
+class SlideImagesAdmin(admin.ModelAdmin):
+    list_display = ("name",)
+    search_fields = ("name",)
+    class Meta:
+        model = SlideImage
