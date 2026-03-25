@@ -1,50 +1,8 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>ToyStore</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800&family=Open+Sans:wght@400&display=swap"
-          rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'asserts/css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'asserts/css/styles.css' %}">
-</head>
-<body>
+{% extends "layouts/layout.html" %}
 
-<header class="header">
-    <div class="logo" id="logo">🧸 ToyStore</div>
+{% block content %}
 
-    <nav class="nav">
-        <div id="categories">
-        <table>
-            <tr>
-                {% for category in categories %}
-                    <td class="menu_nav">
-                     <img src="{{ category.image.url }}" alt=""><a href="#">{{ category.name }}</a>
-                    </td>
-            {% endfor %}
-            </tr>
-        </table>
-
-        </div>
-
-    </nav>
-
-    <div class="header-actions">
-        <input type="text" placeholder="Поиск..." class="search">
-        <button class="cart-btn">🛒 <span id="cart-count">0</span></button>
-        <button class="burger" id="burger">☰</button>
-    </div>
-</header>
-
-<!-- MOBILE MENU -->
-<div class="mobile-menu" id="mobileMenu">
-    {% for category in categories %}
-        <a href="#">{{ category.name }}</a>
-    {% endfor %}
-</div>
-<main class="container">
-    <h1>Популярные игрушки</h1>
+ <h1>Popular toys</h1>
 
     <div class="products" id="products">
         <!-- JS вставит товары -->
@@ -53,80 +11,9 @@
     <h1>Brands</h1>
     <div class="brands">
         {% for brand in brands %}
-            <a href="{{ brand.website }}"><img class="brand_img" src="{{ brand.logo.url }}" alt="{{ brand.name }}"
+            <a href="/brand/{{ brand.slug }}"><img class="brand_img" src="{{ brand.logo.url }}" alt="{{ brand.name }}"
                                                title="{{ brand.description }}"></a>
         {% endfor %}
     </div>
-</main>
 
-
-<!-- КОРЗИНА -->
-<div class="cart-panel" id="cartPanel">
-    <table class="table_cart">
-        <tr>
-            <td class="trash_title">Корзина</td>
-            <td class="trash_icon" title="Close" id="close_trash">❌</td>
-        </tr>
-    </table>
-
-
-    <div id="cartItems"></div>
-    <div class="cart-total" id="cartTotal"></div>
-    <div id="carts_btn"></div>
-</div>
-<!-- MODAL -->
-<div class="modal" id="modal">
-    <div class="modal-content">
-        <h2>Товар добавлен!</h2>
-        <button onclick="closeModal()" class="btn-primary">Ок</button>
-    </div>
-</div>
-<div class="row top_logo">
-    <a href="#logo">⬆️Top</a>
-</div>
-<script src="{% static 'asserts/js/script.js' %}"></script>
-<footer>
-    <div class="footer_div">
-        <div class="row">
-            <div class="col-7 info_shop">
-                <div class="info_contact">
-                    <table>
-                        <tr>
-                            <td><i>📍 Адрес:</i></td>
-                            <td><span>г. Харьков, ул. Центральная, 15</span></td>
-                        </tr>
-                        <tr>
-                            <td><i>📞 Телефон:</i></td>
-                            <td><span><a href="tel: +380 (57) 123‑45‑67">+380 (57) 123‑45‑67</a></span></td>
-                        </tr>
-                        <tr>
-                            <td><i>📧 Email:</i></td>
-                            <td><span><a href="mailto: support@toyshop.com">support@toyshop.com</a></span></td>
-                        </tr>
-                        <tr>
-                            <td><i>🕒 Время работы:</i></td>
-                            <td><span>Пн–Пт 9:00–18:00, Сб 10:00–15:00</span></td>
-                        </tr>
-                        <tr>
-                            <td><i>💬 Онлайн‑чат:</i></td>
-                            <td><span>доступен на сайте круглосуточно</span></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            <div class="col-2 info_subscriber">
-                <div class="mb-3">
-                    <label for="exampleFormControlInput1" class="form-label"><i>Email address</i></label>
-                    <input type="email" class="form-control" id="exampleFormControlInput1"
-                           placeholder="name@example.com">
-                </div>
-                <div class="mb-3">
-                    <input type="button" class="btn btn-danger" value="Subscribe">
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="footer_under">Author: Aleksandr Storchak @2026</div>
-</footer>
-</body>
-</html>
+{% endblock %}

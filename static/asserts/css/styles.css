@@ -9,6 +9,9 @@
     --warning: #FDCB6E;
     --error: #E17055;
 }
+/*div {*/
+/*    border: 1px dashed red;*/
+/*}*/
 
 /* BASE */
 body {
@@ -46,6 +49,11 @@ h2 {
     font-family: 'Nunito';
     font-weight: 800;
     font-size: 20px;
+    color: #0a58ca;
+}
+.logo a{
+    text-decoration: none;
+    color: #0a58ca;
 }
 
 .nav a {
@@ -92,8 +100,8 @@ h2 {
 
 .products {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 5px;
 }
 
 .card {
@@ -103,6 +111,7 @@ h2 {
     box-shadow: 0 2px 8px rgba(45, 52, 54, 0.08);
     transition: 0.3s;
     position: relative;
+
 }
 
 .card:hover {
@@ -116,11 +125,18 @@ h2 {
     object-fit: cover;
     border-radius: 8px;
 }
-
+.card h3{
+    font-size: 18px;
+    color: #0a58ca;
+}
+.card h5{
+    font-size: 14px;
+}
 .price {
     font-family: 'Nunito';
     font-weight: 700;
     font-size: 22px;
+    color: #ff0000;
 }
 
 .badge {
@@ -325,4 +341,33 @@ h2 {
 }
 .menu_nav a:hover{
     color: #dd1f59;
+}
+.pagination_div{
+    text-align: center;
+}
+
+.details{}
+
+.details h1{
+    font-size: 40px;
+}
+.details h2{
+    font-size: 18px;
+}
+.details h4{
+    font-size: 14px;
+    color: #bb2d3b;
+}
+.details img{
+    width: 400px;
+    margin-right: 15px;
+}
+.details span{
+    color: #bb2d3b;
+}
+.form_div{
+    font-size: 18px;
+}
+.form_div button{
+    margin-top: 10px;
 }

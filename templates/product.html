@@ -1,0 +1,33 @@
+{% extends "layouts/layout.html" %}
+{% load static %}
+{% block content %}
+    <div class="details">
+
+
+        <h1>{{ product.name }}</h1>
+        <h2><span>Category: </span>{{ product.category }}</h2>
+        <h2><span>Brand: </span>{{ product.brand }}</h2>
+
+        <h4><span>Article: </span>{{ product.article }}</h4>
+        <table>
+            <tr>
+                <td>
+                    <div class="images">
+                        {% for img in images %}
+                            <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}">
+                        {% empty %}
+                            <img src="{% static 'asserts/img/no-img.png' %}" alt="There are no images for this product.">
+                        {% endfor %}
+                    </div>
+                </td>
+                <td> <strong>{{ product.description_full|safe }}</strong></td>
+            </tr>
+        </table>
+        <h2><span>Material:</span> {{ product.material }}</h2>
+        <h2><span>Weight: </span> {{ product.weight }}</h2>
+        <h2><span>Age min:</span> {{ product.age_min }}</h2>
+        <h2><span>Age max:</span> {{ product.age_max }}</h2>
+        <h2><span>Old price:</span> {{ product.old_price|default:"" }}</h2>
+        <h2><span>Current price:</span> {{ product.price }}</h2>
+    </div>
+{% endblock %}
