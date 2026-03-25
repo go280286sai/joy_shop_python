@@ -14,7 +14,7 @@
 {% include "layouts/header.html" %}
 
 
-<main class="container">
+<main class="container top">
     {% block content %}
 
     {% endblock %}
@@ -42,7 +42,7 @@
         <button onclick="closeModal()" class="btn-primary">Ок</button>
     </div>
 </div>
-
 {% include "layouts/footer.html" %}
+<script src="{% static 'asserts/js/script.js' %}"></script>
 </body>
 </html>
