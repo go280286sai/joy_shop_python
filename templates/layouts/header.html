@@ -19,7 +19,7 @@
 
     <div class="header-actions">
         {% if user.is_authenticated %}
-            Hello, {{ user.username }}!
+            <a href="/profile/">👤Profile</a>
             <a href="/logout/">✖️Logout</a>
             {% else %}
             <a href="/register/">➕Register</a>
