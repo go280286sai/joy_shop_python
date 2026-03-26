@@ -1,12 +1,16 @@
+from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect
-from django.views.generic import TemplateView, CreateView, ListView
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.generic import TemplateView, ListView, DetailView
 from faker import Faker
 import random
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
-from toy_shop.models import Brand, Category, Product, ProductImage, SlideImage
+from toy_shop.models import Brand, Category, Product, ProductImage, SlideImage, UserProfile
 from . import forms
+from django.contrib.auth import PermissionDenied
+
+from .forms import UserProfileForm
 
 
 # Create your views here.
@@ -128,6 +132,7 @@ class LogoutView(TemplateView):
 class RegisterView(TemplateView):
     template_name = "auth/register.html"
     form = forms.StyledUserCreationForm()
+
     def post(self, request):
         data = forms.StyledUserCreationForm(request.POST)
         if data.is_valid():
@@ -136,11 +141,13 @@ class RegisterView(TemplateView):
         else:
             return HttpResponseRedirect('/')
         return request
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
         context['form'] = self.form
         return context
+
 
 class LoginView(TemplateView):
     template_name = "auth/login.html"
@@ -163,4 +170,45 @@ class LoginView(TemplateView):
                 return redirect("/")
         # если невалидно — возвращаем ту же страницу с ошибками
         return self.render_to_response(self.get_context_data(form=form))
+
+
+class ProfileDetailView(LoginRequiredMixin, DetailView):
+    model = UserProfile
+    template_name = 'profile.html'
+    context_object_name = 'profile'
+    login_url = '/register/'
+
+    def get_object(self, queryset=None):
+        profile, _ = UserProfile.objects.get_or_create(user=self.request.user)
+        return profile
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = Category.objects.all()
+        context['form'] = UserProfileForm(
+            instance=self.get_object(),
+            initial={
+                'first_name': self.request.user.first_name,
+                'last_name': self.request.user.last_name,
+                'email': self.request.user.email,
+            }
+        )
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = UserProfileForm(
+            request.POST,
+            request.FILES,
+            instance=self.get_object()
+        )
+        if form.is_valid():
+            form.save()
+            return redirect("/profile/")
+        # если форма невалидна — рендерим шаблон с ошибками
+        return render(request, self.template_name, {
+            'profile': self.get_object(),
+            'categories': Category.objects.all(),
+            'form': form
+        })
+
 

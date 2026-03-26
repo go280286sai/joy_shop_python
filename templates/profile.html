@@ -1,0 +1,13 @@
+{% extends "layouts/layout.html" %}
+{% load static %}
+{% block content %}
+    <div>
+    <p><img src="{{ profile.avatar.url }}" alt="" class="w-25"></p>
+        <p><strong>Bonus point: </strong><span style="color: red">{{ profile.bonus_points }}</span></p>
+        <form action="/profile/" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn-primary" type="submit">Update</button>
+        </form>
+    </div>
+{% endblock %}
