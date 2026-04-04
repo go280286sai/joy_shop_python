@@ -4,11 +4,16 @@
     <div class="products" id="products">
         {% for product in products %}
 
-            <div class="card">
+           <div class="card">
                 <a href="/product/{{ product.slug }}"><h3>{{ product.name }}</h3></a>
                 <h5>{{ product.description_short }}</h5>
                 <div class="price">{{ product.price }}</div>
-                <button class="btn-primary">Add to cart</button>
+                <form action="/cart/" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="product" value="{{ product.id }}">
+                    <input type="hidden" name="quantity" value="1">
+                 <button type="submit" class="btn-primary">Add to cart</button>
+                </form>
             </div>
 
 

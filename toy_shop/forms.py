@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django import forms
 
 from . import models
+from .models import CartItem, Cart
 
 
 class StyledUserCreationForm(UserCreationForm):
@@ -87,3 +88,28 @@ class UserProfileForm(forms.ModelForm):
             user.save()
             profile.save()
         return profile
+
+class CustomOrderForm(forms.ModelForm):
+    first_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder':'First name'}))
+    last_name = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder':'Last name'}))
+    email = forms.EmailField(widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder':'Email@email.com'}))
+    phone = forms.CharField(widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder':'0950000000'}))
+    address = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder':'Address'}))
+    city = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder':'City'}))
+    postal_code = forms.CharField(widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder':'Postal Code'}))
+    promo_code = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder':'Promo Code'}))
+    notes = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder':'Notes'}))
+
+    class Meta:
+        model = models.Order
+        fields = ("first_name", "last_name", "email", "phone", "address", "city", "postal_code", "promo_code", "notes")
+
+    def save(self, commit=True):
+        order = super().save(commit=False)
+        order.delivery_method = "New post"
+        order.payment_method = "Card payment"
+        if commit:
+            order.save()
+        return order
+
+

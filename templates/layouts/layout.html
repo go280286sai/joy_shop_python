@@ -20,28 +20,6 @@
     {% endblock %}
 </main>
 
-
-<!-- КОРЗИНА -->
-<div class="cart-panel" id="cartPanel">
-    <table class="table_cart">
-        <tr>
-            <td class="trash_title">Корзина</td>
-            <td class="trash_icon" title="Close" id="close_trash">❌</td>
-        </tr>
-    </table>
-
-
-    <div id="cartItems"></div>
-    <div class="cart-total" id="cartTotal"></div>
-    <div id="carts_btn"></div>
-</div>
-<!-- MODAL -->
-<div class="modal" id="modal">
-    <div class="modal-content">
-        <h2>Товар добавлен!</h2>
-        <button onclick="closeModal()" class="btn-primary">Ок</button>
-    </div>
-</div>
 {% include "layouts/footer.html" %}
 <script src="{% static 'asserts/js/script.js' %}"></script>
 </body>

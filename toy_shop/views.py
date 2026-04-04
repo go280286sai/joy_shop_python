@@ -1,16 +1,16 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin, LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import TemplateView, ListView, DetailView
+from django.views import View
+from django.views.generic import TemplateView, ListView, DetailView, CreateView
 from faker import Faker
 import random
-from django.http import JsonResponse
 from django.contrib.auth import authenticate, login, logout
-from toy_shop.models import Brand, Category, Product, ProductImage, SlideImage, UserProfile
+from toy_shop.models import Brand, Category, Product, ProductImage, SlideImage, UserProfile, Cart, CartItem, Order, \
+    OrderItem
 from . import forms
-from django.contrib.auth import PermissionDenied
-
 from .forms import UserProfileForm
+from django.db.models import Sum
 
 
 # Create your views here.
@@ -28,6 +28,7 @@ class IndexView(ListView):
         context['brands'] = Brand.objects.all()
         context['categories'] = Category.objects.all()
         context['slides'] = SlideImage.objects.all()
+        context['cart_count'] = get_cart_count(self.request)
         return context
 
 
@@ -47,6 +48,7 @@ class CategoryView(ListView):
         context = super().get_context_data(**kwargs)
         context['category'] = self.category
         context['categories'] = Category.objects.all()
+        context['cart_count'] = get_cart_count(self.request)
         return context
 
 
@@ -65,6 +67,7 @@ class BrandView(ListView):
         context = super().get_context_data(**kwargs)
         context['brand'] = self.brand
         context['categories'] = Category.objects.all()
+        context['cart_count'] = get_cart_count(self.request)
         return context
 
 
@@ -78,6 +81,7 @@ class ProductView(TemplateView):
         context['product'] = product
         context['categories'] = Category.objects.all()
         context['images'] = product_images
+        context['cart_count'] = get_cart_count(self.request)
         return context
 
 
@@ -185,6 +189,7 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
+        context['cart_count'] = get_cart_count(self.request)
         context['form'] = UserProfileForm(
             instance=self.get_object(),
             initial={
@@ -212,3 +217,166 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
         })
 
 
+
+class CartItemView(View):
+    """
+    Классическое Django View для работы с корзиной
+    """
+
+    def get_queryset(self, request):
+        if request.user.is_authenticated:
+            return CartItem.objects.filter(cart__user=request.user)
+        else:
+            return CartItem.objects.filter(cart__session_key=request.session.session_key)
+
+    def post(self, request, *args, **kwargs):
+        """
+        Добавление товара в корзину
+        """
+        data = request.POST
+        if request.user.is_authenticated:
+            cart, created = Cart.objects.get_or_create(
+                user=request.user,
+                defaults={'session_key': request.session.session_key}
+            )
+        else:
+            cart, created = Cart.objects.get_or_create(
+                session_key=request.session.session_key,
+                defaults={'user': None}
+            )
+
+        if data.get('id'):
+            cart_item = get_object_or_404(CartItem, pk=data.get('id'))
+            cart_item.delete()
+            return redirect(request.META.get('HTTP_REFERER', '/trash'))
+        product_id = data.get('product')
+        if not product_id:
+            # можно вернуть ошибку или редирект
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+
+        product = get_object_or_404(Product, id=product_id)
+        quantity = int(data.get('quantity', 1))
+
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            defaults={'quantity': quantity}
+        )
+
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+    def delete(self, request, *args, **kwargs):
+        """
+        Удаление товара из корзины
+        """
+        pk = kwargs.get("pk")
+        cart_item = get_object_or_404(CartItem, pk=pk)
+        cart_item.delete()
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+    def put(self, request, *args, **kwargs):
+        """
+        Обновление количества товара
+        """
+        pk = kwargs.get("pk")
+        cart_item = get_object_or_404(CartItem, pk=pk)
+        quantity = request.POST.get("quantity")
+        if quantity is None:
+            raise ValueError("quantity is required")
+        cart_item.quantity = int(quantity)
+        cart_item.save()
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+class TrashView(TemplateView):
+    template_name = "orders/trash.html"
+    forms = forms.CustomOrderForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Определяем корзину
+        if self.request.user.is_authenticated:
+            cart = Cart.objects.filter(user=self.request.user).first()
+        else:
+            cart = Cart.objects.filter(session_key=self.request.session.session_key).first()
+
+        # Получаем товары корзины
+        cart_items = CartItem.objects.filter(cart=cart) if cart else []
+        context['categories'] = Category.objects.all()
+        context['carts'] = cart_items
+        context['cart_count'] = get_cart_count(self.request)
+        context['forms'] = self.forms(
+            initial={
+                "first_name": self.request.user.first_name,
+                "last_name": self.request.user.last_name,
+                "email": self.request.user.email,
+            }
+        )
+
+        # Вычисляем общую сумму и количество отдельно
+        if cart and cart_items.exists():
+            context['cart_total_quantity'] = cart_items.aggregate(total_quantity=Sum('quantity'))['total_quantity']
+            context['cart_total_price'] = sum(item.quantity * item.product.price for item in cart_items)
+        else:
+            context['cart_total_quantity'] = 0
+            context['cart_total_price'] = 0
+        return context
+
+
+class OrderView(LoginRequiredMixin, CreateView):
+    model = Order
+    form_class = forms.CustomOrderForm
+    template_name = 'index.html'  # укажите ваш шаблон
+
+    def form_valid(self, form):
+        order = form.save(commit=False)
+        order.user = self.request.user
+        order.delivery_method = "New post"
+        order.payment_method = "Card payment"
+        order.total_amount = 0
+        # Сохраняем заказ сначала, чтобы получить ID для OrderItem
+        order.save()
+
+        cart = Cart.objects.filter(user=order.user).first()
+        total = 0
+
+        if cart:
+            for item in cart.items.all():
+                total += item.quantity * item.product.price
+
+                # Создаем OrderItem для каждого товара в корзине
+                OrderItem.objects.create(
+                    order=order,  # передаем объект order, а не item.objects
+                    product=item.product,
+                    product_name=item.product.name,
+                    product_price=item.product.price,
+                    quantity=item.quantity
+                )
+
+            cart.items.all().delete()
+            cart.delete()
+
+        order.total_amount = total
+        order.save()
+
+        return redirect(self.get_success_url())
+
+    def get_success_url(self):
+        return self.request.META.get('HTTP_REFERER', '/')
+
+
+def get_cart_count(request):
+    if request.user.is_authenticated:
+        cart = Cart.objects.filter(user=request.user).first()
+    else:
+        cart = Cart.objects.filter(session_key=request.session.session_key).first()
+    count = 0
+    if cart:
+        count = CartItem.objects.filter(cart=cart).aggregate(total=Sum('quantity'))['total'] or 0
+
+    return count
