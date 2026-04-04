@@ -14,11 +14,12 @@
                         {% for img in images %}
                             <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}">
                         {% empty %}
-                            <img src="{% static 'asserts/img/no-img.png' %}" alt="There are no images for this product.">
+                            <img src="{% static 'asserts/img/no-img.png' %}"
+                                 alt="There are no images for this product.">
                         {% endfor %}
                     </div>
                 </td>
-                <td> <strong>{{ product.description_full|safe }}</strong></td>
+                <td><strong>{{ product.description_full|safe }}</strong></td>
             </tr>
         </table>
         <h2><span>Rating:</span> {{ product.rating }}</h2>
@@ -29,4 +30,11 @@
         <h2><span>Old price:</span> {{ product.old_price|default:"" }}</h2>
         <h2><span>Current price:</span> {{ product.price }}</h2>
     </div>
+    <form action="/cart/" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="product" value="{{ product.id }}">
+        <input type="hidden" name="quantity" value="1">
+        <button type="submit" class="btn-primary">Add to cart</button>
+    </form>
+
 {% endblock %}

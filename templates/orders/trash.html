@@ -1,0 +1,43 @@
+{% extends "layouts/layout.html" %}
+{% load static %}
+{% block content %}
+    <table class="table table-dark">
+        <thead>
+        <tr class="table-danger">
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        {% for item in carts %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>{{ item.product.price }}</td>
+                <td>{{ item.quantity }} * {{item.product.price }} грн</td>
+                <td>
+                    <form action="/cart/" method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value="{{ item.id }}">
+                        <input type="hidden" name="_method" value="delete">
+                        <button type="submit" class="btn-primary">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    <tr>
+        <td colspan="5" style="color: red">Total Price: {{ cart_total_price|default:"0" }}</td>
+
+    </tr>
+    </table>
+
+    <h3>Blank order</h3>
+    <form action="/order/" method="post">
+    {% csrf_token %}
+    {{ forms.as_div }}
+        <input type="submit" value="Send" class="btn-primary mt-3">
+    </form>
+
+{% endblock %}

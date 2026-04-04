@@ -28,8 +28,10 @@
         <label>
             <input type="text" placeholder="Поиск..." class="search">
         </label>
-        <button class="cart-btn">🛒 <span id="cart-count">0</span></button>
-        <button class="burger" id="burger">☰</button>
+        <a href="/trash/">
+            <button class="cart-btn">🛒 <span id="cart-count">{{ cart_count|default:0 }}</span></button>
+            <button class="burger" id="burger">☰</button></a>
+
     </div>
 <div class="mobile-menu" id="mobileMenu">
     {% for category in categories %}
