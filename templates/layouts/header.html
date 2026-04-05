@@ -1,6 +1,5 @@
 <header class="header">
     <div class="logo" id="top"><a href="{% url 'index' %}">🧸 ToyStore</a></div>
-
     <nav class="nav">
         <div id="categories">
         <table>
@@ -12,11 +11,8 @@
             {% endfor %}
             </tr>
         </table>
-
         </div>
-
     </nav>
-
     <div class="header-actions">
         {% if user.is_authenticated %}
             <a href="/profile/">👤Profile</a>
@@ -31,7 +27,6 @@
         <a href="/trash/">
             <button class="cart-btn">🛒 <span id="cart-count">{{ cart_count|default:0 }}</span></button>
             <button class="burger" id="burger">☰</button></a>
-
     </div>
 <div class="mobile-menu" id="mobileMenu">
     {% for category in categories %}

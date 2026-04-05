@@ -10,16 +10,11 @@
     <link rel="stylesheet" href="{% static 'asserts/css/styles.css' %}">
 </head>
 <body>
-
 {% include "layouts/header.html" %}
-
-
 <main class="container top">
     {% block content %}
-
     {% endblock %}
 </main>
-
 {% include "layouts/footer.html" %}
 <script src="{% static 'asserts/js/script.js' %}"></script>
 </body>

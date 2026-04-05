@@ -1,29 +1,42 @@
+"""
+View module
+"""
+# pylint: disable=(ungrouped-imports, no-member, too-many-ancestors)
+import random
+from django.db.models import Sum
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 from django.views.generic import TemplateView, ListView, DetailView, CreateView
 from faker import Faker
-import random
 from django.contrib.auth import authenticate, login, logout
-from toy_shop.models import Brand, Category, Product, ProductImage, SlideImage, UserProfile, Cart, CartItem, Order, \
-    OrderItem
+from toy_shop.models import (Brand, Category, Product, ProductImage,
+                             SlideImage, UserProfile, Cart, CartItem,
+                             Order, OrderItem)
 from . import forms
 from .forms import UserProfileForm
-from django.db.models import Sum
 
 
-# Create your views here.
 class IndexView(ListView):
+    """
+    Create IndexView
+    """
     template_name = 'index.html'
     model = Product
     context_object_name = 'products'
 
     def get_queryset(self):
-        # возвращаем только продукты этой категории
+        """
+        :return:
+        """
         return Product.objects.order_by('-rating')[:15]
 
     def get_context_data(self, **kwargs):
+        """
+        :param kwargs:
+        :return:
+        """
         context = super().get_context_data(**kwargs)
         context['brands'] = Brand.objects.all()
         context['categories'] = Category.objects.all()
@@ -33,18 +46,31 @@ class IndexView(ListView):
 
 
 class CategoryView(ListView):
+    """
+    Create CategoryView
+    """
     model = Product
     template_name = 'category.html'
     context_object_name = 'products'
     paginate_by = 15
+    category = None
 
     def get_queryset(self):
+        """
+        :return:
+        """
         # получаем категорию по slug
-        self.category = get_object_or_404(Category, slug=self.kwargs['category_slug'])
-        # возвращаем только продукты этой категории
+        self.category = get_object_or_404(
+            Category,
+            slug=self.kwargs['category_slug']
+        )
         return Product.objects.filter(category=self.category)
 
     def get_context_data(self, **kwargs):
+        """
+        :param kwargs:
+        :return:
+        """
         context = super().get_context_data(**kwargs)
         context['category'] = self.category
         context['categories'] = Category.objects.all()
@@ -53,17 +79,28 @@ class CategoryView(ListView):
 
 
 class BrandView(ListView):
+    """
+    Create BrandView
+    """
     template_name = 'brand.html'
     context_object_name = 'products'
     paginate_by = 15
+    brand = None
 
     def get_queryset(self):
+        """
+        :return:
+        """
         # сохраняем бренд в self.brand
         self.brand = get_object_or_404(Brand, slug=self.kwargs['brand_slug'])
         # возвращаем товары этого бренда
         return Product.objects.filter(brand=self.brand)
 
     def get_context_data(self, **kwargs):
+        """
+        :param kwargs:
+        :return:
+        """
         context = super().get_context_data(**kwargs)
         context['brand'] = self.brand
         context['categories'] = Category.objects.all()
@@ -72,9 +109,16 @@ class BrandView(ListView):
 
 
 class ProductView(TemplateView):
+    """
+    Create ProductView
+    """
     template_name = 'product.html'
 
     def get_context_data(self, **kwargs):
+        """
+        :param kwargs:
+        :return:
+        """
         context = super().get_context_data(**kwargs)
         product = get_object_or_404(Product, slug=self.kwargs['product_slug'])
         product_images = ProductImage.objects.filter(product=product)
@@ -86,16 +130,25 @@ class ProductView(TemplateView):
 
 
 class TestView(ListView):
+    """
+    Create TestView
+    """
     model = Product
     template_name = 'index.html'
     context_object_name = 'products'
     faker = Faker()
 
     def get(self, request, *args, **kwargs):
+        """
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
         categories = list(Category.objects.all())
         brands = list(Brand.objects.all())
 
-        for i in range(1000):
+        for _ in range(1000):
             get_name = self.faker.sentence(nb_words=3)
             descriptions = self.faker.text(max_nb_chars=500)
             Product.objects.create(
@@ -119,6 +172,10 @@ class TestView(ListView):
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
+        """
+        :param kwargs:
+        :return:
+        """
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
         context['brands'] = Brand.objects.all()
@@ -126,6 +183,9 @@ class TestView(ListView):
 
 
 class LogoutView(TemplateView):
+    """
+    Create LogoutView
+    """
     redirect_url = '/'
 
     def get(self, request, *args, **kwargs):
@@ -134,10 +194,17 @@ class LogoutView(TemplateView):
 
 
 class RegisterView(TemplateView):
+    """
+    Create RegisterView
+    """
     template_name = "auth/register.html"
     form = forms.StyledUserCreationForm()
 
     def post(self, request):
+        """
+        :param request:
+        :return:
+        """
         data = forms.StyledUserCreationForm(request.POST)
         if data.is_valid():
             user = data.save()
@@ -147,6 +214,10 @@ class RegisterView(TemplateView):
         return request
 
     def get_context_data(self, **kwargs):
+        """
+        :param kwargs:
+        :return:
+        """
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
         context['form'] = self.form
@@ -154,16 +225,27 @@ class RegisterView(TemplateView):
 
 
 class LoginView(TemplateView):
+    """
+    Create LoginView
+    """
     template_name = "auth/login.html"
     form_class = forms.CustomUserAuthenticationForm
 
     def get_context_data(self, **kwargs):
+        """
+        :param kwargs:
+        :return:
+        """
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
         context['form'] = self.form_class()
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
+        """
+        :param request:
+        :return:
+        """
         form = self.form_class(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get("username")
@@ -177,16 +259,27 @@ class LoginView(TemplateView):
 
 
 class ProfileDetailView(LoginRequiredMixin, DetailView):
+    """
+    Create ProfileDetailView
+    """
     model = UserProfile
     template_name = 'profile.html'
     context_object_name = 'profile'
     login_url = '/register/'
 
     def get_object(self, queryset=None):
+        """
+        :param queryset:
+        :return:
+        """
         profile, _ = UserProfile.objects.get_or_create(user=self.request.user)
         return profile
 
     def get_context_data(self, **kwargs):
+        """
+        :param kwargs:
+        :return:
+        """
         context = super().get_context_data(**kwargs)
         context['categories'] = Category.objects.all()
         context['cart_count'] = get_cart_count(self.request)
@@ -200,7 +293,11 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
         )
         return context
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
+        """
+        :param request:
+        :return:
+        """
         form = UserProfileForm(
             request.POST,
             request.FILES,
@@ -217,21 +314,27 @@ class ProfileDetailView(LoginRequiredMixin, DetailView):
         })
 
 
-
 class CartItemView(View):
     """
-    Классическое Django View для работы с корзиной
+    Create CartItemView
     """
 
     def get_queryset(self, request):
+        """
+        :param request:
+        :return:
+        """
         if request.user.is_authenticated:
             return CartItem.objects.filter(cart__user=request.user)
-        else:
-            return CartItem.objects.filter(cart__session_key=request.session.session_key)
 
-    def post(self, request, *args, **kwargs):
+        return CartItem.objects.filter(
+            cart__session_key=request.session.session_key
+        )
+
+    def post(self, request):
         """
-        Добавление товара в корзину
+        :param request:
+        :return:
         """
         data = request.POST
         if request.user.is_authenticated:
@@ -269,18 +372,23 @@ class CartItemView(View):
 
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
-    def delete(self, request, *args, **kwargs):
+    def delete(self, request, **kwargs):
         """
-        Удаление товара из корзины
+        :param request:
+        :param kwargs:
+        :return:
         """
         pk = kwargs.get("pk")
         cart_item = get_object_or_404(CartItem, pk=pk)
         cart_item.delete()
         return redirect(request.META.get('HTTP_REFERER', '/'))
 
-    def put(self, request, *args, **kwargs):
+    def put(self, request, **kwargs):
         """
-        Обновление количества товара
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
         """
         pk = kwargs.get("pk")
         cart_item = get_object_or_404(CartItem, pk=pk)
@@ -293,19 +401,26 @@ class CartItemView(View):
 
 
 class TrashView(TemplateView):
+    """
+    Create TrashView
+    """
     template_name = "orders/trash.html"
     forms = forms.CustomOrderForm
 
     def get_context_data(self, **kwargs):
+        """
+        :param kwargs:
+        :return:
+        """
         context = super().get_context_data(**kwargs)
 
-        # Определяем корзину
         if self.request.user.is_authenticated:
             cart = Cart.objects.filter(user=self.request.user).first()
         else:
-            cart = Cart.objects.filter(session_key=self.request.session.session_key).first()
+            cart = Cart.objects.filter(
+                session_key=self.request.session.session_key
+            ).first()
 
-        # Получаем товары корзины
         cart_items = CartItem.objects.filter(cart=cart) if cart else []
         context['categories'] = Category.objects.all()
         context['carts'] = cart_items
@@ -318,10 +433,13 @@ class TrashView(TemplateView):
             }
         )
 
-        # Вычисляем общую сумму и количество отдельно
         if cart and cart_items.exists():
-            context['cart_total_quantity'] = cart_items.aggregate(total_quantity=Sum('quantity'))['total_quantity']
-            context['cart_total_price'] = sum(item.quantity * item.product.price for item in cart_items)
+            context['cart_total_quantity'] = cart_items.aggregate(
+                total_quantity=Sum('quantity')
+            )['total_quantity']
+            context['cart_total_price'] = sum(
+                item.quantity * item.product.price for item in cart_items
+            )
         else:
             context['cart_total_quantity'] = 0
             context['cart_total_price'] = 0
@@ -329,11 +447,18 @@ class TrashView(TemplateView):
 
 
 class OrderView(LoginRequiredMixin, CreateView):
+    """
+    Create OrderView
+    """
     model = Order
     form_class = forms.CustomOrderForm
     template_name = 'index.html'  # укажите ваш шаблон
 
     def form_valid(self, form):
+        """
+        :param form:
+        :return:
+        """
         order = form.save(commit=False)
         order.user = self.request.user
         order.delivery_method = "New post"
@@ -367,16 +492,27 @@ class OrderView(LoginRequiredMixin, CreateView):
         return redirect(self.get_success_url())
 
     def get_success_url(self):
+        """
+        :return:
+        """
         return self.request.META.get('HTTP_REFERER', '/')
 
 
 def get_cart_count(request):
+    """
+    :param request:
+    :return:
+    """
     if request.user.is_authenticated:
         cart = Cart.objects.filter(user=request.user).first()
     else:
-        cart = Cart.objects.filter(session_key=request.session.session_key).first()
+        cart = Cart.objects.filter(
+            session_key=request.session.session_key
+        ).first()
     count = 0
     if cart:
-        count = CartItem.objects.filter(cart=cart).aggregate(total=Sum('quantity'))['total'] or 0
+        count = CartItem.objects.filter(cart=cart).aggregate(
+            total=Sum('quantity')
+        )['total'] or 0
 
     return count
