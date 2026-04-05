@@ -29,15 +29,12 @@
         {% endfor %}
     <tr>
         <td colspan="5" style="color: red">Total Price: {{ cart_total_price|default:"0" }}</td>
-
     </tr>
     </table>
-
     <h3>Blank order</h3>
     <form action="/order/" method="post">
     {% csrf_token %}
     {{ forms.as_div }}
         <input type="submit" value="Send" class="btn-primary mt-3">
     </form>
-
 {% endblock %}
