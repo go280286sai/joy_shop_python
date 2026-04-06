@@ -3,6 +3,8 @@ Admin module
 """
 # pylint: disable=too-few-public-methods
 from django.contrib import admin
+from django.http import JsonResponse, HttpResponseForbidden
+from django.urls import path
 
 from toy_shop.models import (Brand, Category, Product, ProductImage,
                              SlideImage, UserProfile,
@@ -219,3 +221,30 @@ class CartItemAdmin(admin.ModelAdmin):
         Register CartItem model
         """
         model = CartItem
+
+class ActionAdmin(admin.AdminSite):
+    site_header = "Custom Admin"
+    site_title = "Custom Admin Portal"
+    index_title = "Добро пожаловать"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "export/products/",
+                self.admin_view(self.export_products),
+                name="export-products"
+            ),
+        ]
+        return custom_urls + urls
+
+    def export_products(self, request):
+        if not request.user.is_staff:
+            return HttpResponseForbidden()
+
+        data = list(Product.objects.values("id", "name", "price"))
+        return JsonResponse(data, safe=False)
+
+
+action_admin = ActionAdmin(name="action_admin")
+action_admin.register(Product)

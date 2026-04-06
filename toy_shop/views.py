@@ -16,6 +16,11 @@ from toy_shop.models import (Brand, Category, Product, ProductImage,
                              Order, OrderItem)
 from . import forms
 from .forms import UserProfileForm
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser
+
+from .serializers import ProductSerializer
 
 
 class IndexView(ListView):
@@ -516,3 +521,19 @@ def get_cart_count(request):
         )['total'] or 0
 
     return count
+
+
+class ExportProductsView(APIView):
+    """
+    Create ExportProductsView
+    """
+    permission_classes = [IsAdminUser]
+
+    def get(self, request):
+        """
+        :param request:
+        :return:
+        """
+        queryset = Product.objects.all()
+        serializer = ProductSerializer(queryset, many=True)
+        return Response(serializer.data)

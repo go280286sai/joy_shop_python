@@ -3,6 +3,8 @@ Urls module
 """
 from django.urls import path
 from toy_shop import views
+from toy_shop.admin import action_admin
+from toy_shop.views import ExportProductsView
 
 urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
@@ -19,5 +21,6 @@ urlpatterns = [
     path("trash/", views.TrashView.as_view(), name='trash'),
     path("cart/", views.CartItemView.as_view(), name='cart'),
     path('order/', views.OrderView.as_view(), name='order'),
+    path("api/export/products/", ExportProductsView.as_view()),
 
 ]
